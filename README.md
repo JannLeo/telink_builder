@@ -1,17 +1,21 @@
-# TC BLE Lite SDK Builder
+# telink_builder
 
-Headless build script for the TC BLE Lite SDK using TelinkIoTStudio on Linux (or Windows).
+Headless build scripts for Telink SDK projects using TelinkIoTStudio on Linux (or Windows).
 
 ## Prerequisites
 
 - **TelinkIoTStudio** IDE installed (default: `/home/test/Telink/TelinkIoTStudio`)
-- **TC32 toolchain** in PATH (e.g. `/home/test/program_file/Telink_Studio/tc32/bin`)
-- Python 3 (for flash address normalization)
+- **TC32 toolchain** in PATH (e.g. `tc32/bin` under the IDE or a standalone toolchain)
+- Python 3
 
-## Quick Start
+## Scripts
+
+### `robin_build_variant.sh`
+
+Build the `flash_on_rom_lib` Eclipse configuration for TC BLE Lite SDK projects.
 
 ```bash
-./robin_build_variant.sh --sdk-root /path/to/tc_ble_lite_sdk
+./robin_build_variant.sh --sdk-root /path/to/sdk
 ```
 
 ## Usage
@@ -39,31 +43,22 @@ OPTIONS:
 ## Examples
 
 ```bash
-# Build with defaults (rx target, txrx_selfie ROM, flash eFuse)
+# Build with defaults
 ./robin_build_variant.sh --sdk-root /home/test/code/tc_ble_lite_sdk-1.2.2_allinone
 
 # Build TX target with real eFuse
 ./robin_build_variant.sh --sdk-root /path/to/sdk --target tx --efuse-source real
 
-# Use a custom IDE location via environment variable
+# Use a custom IDE location
 TELINK_IDE_EXE=/opt/TelinkIoTStudio ./robin_build_variant.sh --sdk-root /path/to/sdk
 ```
 
-## Output
-
-Build artifacts are placed under `flash_on_rom_lib/` inside the SDK root:
-
-| File | Description |
-|------|-------------|
-| `flash_on_rom_lib.elf` | Linked ELF binary |
-| `flash_on_rom_lib.bin` | Flash image (with CRC) |
-| `robin_ble-nocrc.bin` | Raw binary (no CRC) |
-| `flash_on_rom_lib.lst` | Extended listing |
-
 ## How It Works
 
-1. Generates `telink_ble/vendor/blueLight/robin_build_config.h` with the requested macros
-2. Invokes TelinkIoTStudio in headless mode to run the `flash_on_rom_lib` Eclipse build configuration
+Scripts in this repo invoke TelinkIoTStudio in headless mode to run Eclipse CDT managed build configurations. Each script:
+
+1. Generates any required config headers in the SDK
+2. Calls the IDE with `-application org.eclipse.cdt.managedbuilder.core.headlessbuild`
 3. Prints a summary of build status and artifact sizes
 
-The script is designed to work with any TC BLE Lite SDK checkout — just point `--sdk-root` at the right directory.
+All scripts use `--sdk-root` to point at the target SDK checkout, so they work across different projects and repositories.
